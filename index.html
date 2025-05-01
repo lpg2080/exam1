@@ -217,28 +217,29 @@
           s = ("0" + now.getSeconds()).slice(-2);
       document.getElementById("clock").textContent = h + " : " + m + " : " + s;
     }
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      // Toggle 5교시 row
-      document.getElementById('toggle-period').addEventListener('click', function() {
-        var tableBody = document.querySelector('#schedule-table tbody');
-        var exists = false;
-        tableBody.querySelectorAll('tr').forEach(function(row) {
-          if (row.cells[0].textContent.trim() === '5교시') exists = true;
-        });
-        if (!exists) {
-          var newRow = document.createElement('tr');
-          newRow.innerHTML = '<td>5교시</td><td>16:05(10) ~ 16:50</td><td>제2외국어(40분)</td>';
-          tableBody.appendChild(newRow);
-        } else {
-          tableBody.querySelectorAll('tr').forEach(function(row) {
-            if (row.cells[0].textContent.trim() === '5교시') {
-              tableBody.removeChild(row);
-            }
-          });
+    
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('toggle-period').addEventListener('click', function() {
+    var tableBody = document.querySelector('#schedule-table tbody');
+    var exists = false;
+    tableBody.querySelectorAll('tr').forEach(function(row) {
+      if (row.cells[0].textContent.trim() === '5교시') exists = true;
+    });
+    if (!exists) {
+      var newRow = document.createElement('tr');
+      newRow.innerHTML = '<td>5교시</td><td>16:05(10) ~ 16:50</td><td>제2외국어(40분)</td>';
+      tableBody.appendChild(newRow);
+    } else {
+      tableBody.querySelectorAll('tr').forEach(function(row) {
+        if (row.cells[0].textContent.trim() === '5교시') {
+          tableBody.removeChild(row);
         }
       });
-var tableBody = document.querySelector('#schedule-table tbody');
+    }
+    this.blur(); // 클릭 후 포커스 해제
+  });
+});
+    var tableBody = document.querySelector('#schedule-table tbody');
       document.getElementById('add-period').addEventListener('click', function() {
         var exists = false;
         tableBody.querySelectorAll('tr').forEach(function(row) {
