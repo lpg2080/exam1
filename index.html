@@ -45,8 +45,8 @@
       font-weight: bold;
       text-align: center;
       padding: 8px 0;
-      margin-bottom: 21px; /* reduced to 2/3 of previous 20px */
-      line-height: normal; /* reset line-height */
+      margin-bottom: 21px;
+      line-height: normal;
     }
     .schedule-table {
       width: 100%;
@@ -62,7 +62,7 @@
       border: none;
       padding: 5px;
       font-size: 25px;
-      line-height: 1.5;
+      line-height: 1.45;
     }
     .schedule-table th {
       font-weight: 700;
@@ -72,7 +72,7 @@
       text-align: left;
     }
     .row {
-      margin-bottom: 21px; /* reduced to 2/3 of previous 25px */
+      margin-bottom: 21px;
       white-space: nowrap;
     }
     .row .label {
@@ -100,7 +100,8 @@
     }
     .action-buttons {
       margin-top: 30px;
-      text-align: left; margin-left: 100px; 
+      text-align: left;
+      margin-left: 5px;
     }
     .action-buttons button {
       font-size: 18px;
@@ -117,23 +118,25 @@
       background-color: yellow;
       color: #111;
     }
-  
-  #toggle-period:focus,
-  #toggle-period:active {
-    background-color: initial;
-    color: white;
-    outline: none;
-  }
-    
+
+    #toggle-period {
+      margin-left: 105px;
+    }
+
+    #toggle-period:focus,
+    #toggle-period:active {
+      background-color: initial;
+      color: white;
+      outline: none;
+    }
+
     .schedule-table th:nth-child(2) {
       padding-left: 60px;
     }
 
-  
     .schedule-table th:nth-child(3) {
       padding-left: 30px;
     }
-
   </style>
 </head>
 <body>
@@ -183,6 +186,7 @@
 
   <script>
     var serverBaseTime, clientStartTime;
+
     function fetchServerTime() {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', 'https://us-central1-exam-clock-server.cloudfunctions.net/getTime', true);
@@ -209,6 +213,7 @@
       };
       xhr.send();
     }
+
     function updateClock() {
       if (!serverBaseTime || !clientStartTime) return;
       var now = new Date(serverBaseTime + (Date.now() - clientStartTime));
@@ -217,30 +222,10 @@
           s = ("0" + now.getSeconds()).slice(-2);
       document.getElementById("clock").textContent = h + " : " + m + " : " + s;
     }
-    
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('toggle-period').addEventListener('click', function() {
-    var tableBody = document.querySelector('#schedule-table tbody');
-    var exists = false;
-    tableBody.querySelectorAll('tr').forEach(function(row) {
-      if (row.cells[0].textContent.trim() === '5교시') exists = true;
-    });
-    if (!exists) {
-      var newRow = document.createElement('tr');
-      newRow.innerHTML = '<td>5교시</td><td>16:05(10) ~ 16:50</td><td>제2외국어(40분)</td>';
-      tableBody.appendChild(newRow);
-    } else {
-      tableBody.querySelectorAll('tr').forEach(function(row) {
-        if (row.cells[0].textContent.trim() === '5교시') {
-          tableBody.removeChild(row);
-        }
-      });
-    }
-    this.blur(); // 클릭 후 포커스 해제
-  });
-});
-    var tableBody = document.querySelector('#schedule-table tbody');
-      document.getElementById('add-period').addEventListener('click', function() {
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('toggle-period').addEventListener('click', function() {
+        var tableBody = document.querySelector('#schedule-table tbody');
         var exists = false;
         tableBody.querySelectorAll('tr').forEach(function(row) {
           if (row.cells[0].textContent.trim() === '5교시') exists = true;
@@ -249,16 +234,17 @@ document.addEventListener('DOMContentLoaded', function() {
           var newRow = document.createElement('tr');
           newRow.innerHTML = '<td>5교시</td><td>16:05(10) ~ 16:50</td><td>제2외국어(40분)</td>';
           tableBody.appendChild(newRow);
+        } else {
+          tableBody.querySelectorAll('tr').forEach(function(row) {
+            if (row.cells[0].textContent.trim() === '5교시') {
+              tableBody.removeChild(row);
+            }
+          });
         }
-      });
-      document.getElementById('remove-period').addEventListener('click', function() {
-        tableBody.querySelectorAll('tr').forEach(function(row) {
-          if (row.cells[0].textContent.trim() === '5교시') {
-            tableBody.removeChild(row);
-          }
-        });
+        this.blur(); // 포커스 제거
       });
     });
+
     fetchServerTime();
   </script>
 </body>
