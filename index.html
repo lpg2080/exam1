@@ -24,8 +24,12 @@
       display: table-cell;
       vertical-align: top;
     }
-    .left { width: 65%; }
-    .right { width: 35%; }
+    .left {
+      width: 65%;
+    }
+    .right {
+      width: 35%;
+    }
     .clock {
       margin-top: 0;
       margin-bottom: 21px;
@@ -50,6 +54,9 @@
       margin-bottom: 21px;
       table-layout: fixed;
     }
+    .schedule-table colgroup col:nth-child(1) { width: 15%; }
+    .schedule-table colgroup col:nth-child(2) { width: 47%; }
+    .schedule-table colgroup col:nth-child(3) { width: 38%; }
     .schedule-table th,
     .schedule-table td {
       border: none;
@@ -57,9 +64,17 @@
       font-size: 25px;
       line-height: 1.45;
     }
-    .schedule-table th { font-weight: 700; text-align: left; }
-    .schedule-table td { text-align: left; }
-    .row { margin-bottom: 21px; white-space: nowrap; }
+    .schedule-table th {
+      font-weight: 700;
+      text-align: left;
+    }
+    .schedule-table td {
+      text-align: left;
+    }
+    .row {
+      margin-bottom: 21px;
+      white-space: nowrap;
+    }
     .row .label {
       font-weight: 700;
       display: inline-block;
@@ -77,8 +92,12 @@
       text-align: center;
       margin-left: 5px;
     }
-    .short { width: 80px; }
-    .long { width: 180px; }
+    .row .long {
+      width: 180px;
+    }
+    .row .short {
+      width: 80px;
+    }
     .action-buttons {
       margin-top: 30px;
       text-align: left;
@@ -95,19 +114,33 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    /* Hover and touch pseudo-hover */
-    .action-buttons button:hover,
-    .action-buttons button.hover {
+    .action-buttons button:hover {
       background-color: yellow;
       color: #111;
     }
-    /* Button alignment: align with input box start */
+
     #toggle-period {
       margin-left: 105px;
     }
-    /* Remove focus outline only */
-    #toggle-period:focus {
-      outline: none;
+
+    /* 누를 때만 색 변화 */
+   #toggle-period:active {
+    background-color: yellow;
+    color: #111;
+    outline: none; 
+    }
+
+    /* 부드럽게 전환하려면 (선택) */
+     #toggle-period {
+     transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+    .schedule-table th:nth-child(2) {
+      padding-left: 60px;
+    }
+
+    .schedule-table th:nth-child(3) {
+      padding-left: 30px;
     }
   </style>
 </head>
@@ -116,9 +149,9 @@
     <div class="column left">
       <table class="schedule-table" id="schedule-table">
         <colgroup>
-          <col style="width:15%;">
-          <col style="width:47%;">
-          <col style="width:38%;">
+          <col>
+          <col>
+          <col>
         </colgroup>
         <thead>
           <tr>
@@ -141,9 +174,15 @@
     <div class="column right">
       <div class="clock" id="clock">Loading...</div>
       <div class="school-code">학교코드 : 11505</div>
-      <div class="row"><span class="label">• 재적</span><input type="text" class="short" /></div>
-      <div class="row"><span class="label">• 응시</span><input type="text" class="short" /></div>
-      <div class="row"><span class="label">• 결시</span><input type="text" class="long" /></div>
+      <div class="row">
+        <span class="label">• 재적</span><input type="text" class="short" />
+      </div>
+      <div class="row">
+        <span class="label">• 응시</span><input type="text" class="short" />
+      </div>
+      <div class="row">
+        <span class="label">• 결시</span><input type="text" class="long" />
+      </div>
       <div class="action-buttons">
         <button id="toggle-period">5교시 추가/삭제</button>
       </div>
@@ -152,6 +191,7 @@
 
   <script>
     var serverBaseTime, clientStartTime;
+
     function fetchServerTime() {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', 'https://us-central1-exam-clock-server.cloudfunctions.net/getTime', true);
@@ -167,17 +207,20 @@
             updateClock();
             setInterval(updateClock, 1000);
           } catch (e) {
+            console.error("JSON 파싱 실패:", e);
             document.getElementById("clock").textContent = "-- : -- : --";
           }
         }
       };
       xhr.onerror = function() {
+        console.error("요청 실패");
         document.getElementById("clock").textContent = "-- : -- : --";
       };
       xhr.send();
     }
+
     function updateClock() {
-      if (!serverBaseTime) return;
+      if (!serverBaseTime || !clientStartTime) return;
       var now = new Date(serverBaseTime + (Date.now() - clientStartTime));
       var h = ("0" + now.getHours()).slice(-2),
           m = ("0" + now.getMinutes()).slice(-2),
@@ -186,31 +229,25 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      var toggleBtn = document.getElementById('toggle-period');
-      toggleBtn.addEventListener('click', function() {
-        var tbody = document.querySelector('#schedule-table tbody');
-        var exists = Array.from(tbody.rows).some(r => r.cells[0].textContent.trim() === '5교시');
+      document.getElementById('toggle-period').addEventListener('click', function() {
+        var tableBody = document.querySelector('#schedule-table tbody');
+        var exists = false;
+        tableBody.querySelectorAll('tr').forEach(function(row) {
+          if (row.cells[0].textContent.trim() === '5교시') exists = true;
+        });
         if (!exists) {
-          var row = document.createElement('tr');
-          row.innerHTML = '<td>5교시</td><td>16:05(10) ~ 16:50</td><td>제2외국어(40분)</td>';
-          tbody.appendChild(row);
+          var newRow = document.createElement('tr');
+          newRow.innerHTML = '<td>5교시</td><td>16:05(10) ~ 16:50</td><td>제2외국어(40분)</td>';
+          tableBody.appendChild(newRow);
         } else {
-          Array.from(tbody.rows).forEach(r => {
-            if (r.cells[0].textContent.trim() === '5교시') tbody.removeChild(r);
+          tableBody.querySelectorAll('tr').forEach(function(row) {
+            if (row.cells[0].textContent.trim() === '5교시') {
+              tableBody.removeChild(row);
+            }
           });
         }
-        this.blur();
+        this.blur(); // 포커스 제거
       });
-
-      // Pointer & Touch events for consistent hover behavior
-      var btn = document.getElementById('toggle-period');
-      btn.addEventListener('pointerenter', () => btn.classList.add('hover'));
-      btn.addEventListener('pointerleave', () => btn.classList.remove('hover'));
-      ['pointerdown','pointerup','pointercancel'].forEach(evt =>
-        btn.addEventListener(evt, () => btn.classList.remove('hover'))
-      );
-      btn.addEventListener('touchstart', () => btn.classList.add('hover'));
-      btn.addEventListener('touchend', () => btn.classList.remove('hover'));
     });
 
     fetchServerTime();
